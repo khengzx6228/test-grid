@@ -1,0 +1,253 @@
+# Grid Trading System Configuration
+# Version: 2.0 - Fixed and Enhanced
+# 
+# ⚠️ IMPORTANT: 
+# 1. Replace YOUR_API_KEY_HERE and YOUR_API_SECRET_HERE with real Binance API credentials
+# 2. Start with use_testnet: true for testing
+# 3. Adjust trading parameters based on your risk tolerance
+
+# ===== Trading Configuration =====
+trading:
+  # Basic trading setup
+  symbol: "BTCUSDT"              # Trading pair
+  leverage: 1                    # Leverage (1-5 recommended for safety)
+  initial_balance: 1000          # Initial balance in USDT
+  
+  # Grid strategy configuration
+  grid_configs:
+    # High-frequency arbitrage layer (±3% range)
+    high_freq:
+      range: 0.03                # ±3% price coverage
+      spacing: 0.005             # 0.5% grid spacing
+      size: 20                   # 20 USDT per order
+      enabled: true
+      max_orders: 50             # Maximum orders for this layer
+      
+    # Main trend following layer (±15% range)  
+    main_trend:
+      range: 0.15                # ±15% price coverage
+      spacing: 0.01              # 1% grid spacing
+      size: 50                   # 50 USDT per order
+      enabled: true
+      max_orders: 40
+      
+    # Insurance layer (±50% range)
+    insurance:
+      range: 0.50                # ±50% price coverage (extreme protection)
+      spacing: 0.05              # 5% grid spacing
+      size: 100                  # 100 USDT per order
+      enabled: true
+      max_orders: 30
+  
+  # Risk management
+  risk_management:
+    max_drawdown: 0.20           # Maximum drawdown 20%
+    stop_loss: 0.15              # Stop loss at 15%
+    position_size_limit: 0.10    # Max 10% of balance per position
+    daily_loss_limit: 0.05       # Daily loss limit 5%
+    
+  # Order management
+  order_settings:
+    timeout_minutes: 60          # Order timeout in minutes
+    retry_attempts: 3            # Number of retry attempts
+    min_profit_threshold: 0.001  # Minimum profit threshold (0.1%)
+
+# ===== System Configuration =====
+system:
+  # Performance settings
+  check_interval: 5              # Main loop check interval (seconds)
+  order_check_interval: 30       # Order status check interval (seconds)
+  price_update_interval: 10      # Price update interval (seconds)
+  
+  # Web interface
+  web_port: 8080                 # Web interface port
+  web_host: "0.0.0.0"           # Web interface host (0.0.0.0 for all interfaces)
+  cors_enabled: true             # Enable CORS for web API
+  
+  # Database
+  database_url: "sqlite:///data/trading.db"  # SQLite database path
+  
+  # Logging
+  log_level: "INFO"              # DEBUG/INFO/WARNING/ERROR
+  log_retention_days: 30         # Log file retention period
+  structured_logging: true       # Enable structured JSON logging
+  
+  # Security
+  api_rate_limit: 100            # API requests per minute
+  max_concurrent_orders: 200     # Maximum concurrent orders
+  
+  # Backup settings
+  backup_enabled: true           # Enable automatic backups
+  backup_interval_hours: 24      # Backup interval in hours
+  backup_retention_days: 7       # Backup retention period
+
+# ===== Binance API Configuration =====
+api:
+  binance_api_key: "YOUR_API_KEY_HERE"        # Replace with your Binance API key
+  binance_api_secret: "YOUR_API_SECRET_HERE"  # Replace with your Binance API secret
+  use_testnet: true                           # Use testnet for testing (set to false for live trading)
+  
+  # API settings
+  timeout: 30                    # API timeout in seconds
+  max_retries: 3                 # Maximum API retry attempts
+  retry_delay: 1                 # Delay between retries (seconds)
+  
+  # Rate limiting
+  requests_per_minute: 1200      # Binance rate limit
+  orders_per_second: 10          # Order rate limit
+  
+  # Connection settings
+  testnet_url: "https://testnet.binancefuture.com"
+  mainnet_url: "https://fapi.binance.com"
+
+# ===== Feature Flags =====
+features:
+  # Multi-symbol trading
+  multi_symbol:
+    enabled: false               # Enable multi-symbol trading
+    symbols:                     # List of symbols to trade
+      - "BTCUSDT"
+      - "ETHUSDT"
+      - "BNBUSDT"
+    capital_allocation: "auto"   # auto/manual capital allocation
+    max_symbols: 5               # Maximum number of symbols
+    
+  # AI optimization (requires additional dependencies)
+  ai_optimization:
+    enabled: false               # Enable AI parameter optimization
+    interval_hours: 1            # Optimization interval in hours
+    min_trades_threshold: 20     # Minimum trades before optimization
+    learning_rate: 0.01          # Learning rate for optimization
+    
+  # Advanced risk management
+  advanced_risk:
+    enabled: true                # Enable advanced risk features
+    volatility_adjustment: true  # Adjust parameters based on volatility
+    correlation_monitoring: true # Monitor symbol correlations
+    drawdown_protection: true    # Enhanced drawdown protection
+    
+  # Notifications
+  notifications:
+    enabled: false               # Enable notifications
+    telegram_enabled: false     # Enable Telegram notifications
+    email_enabled: false        # Enable email notifications
+    webhook_enabled: false      # Enable webhook notifications
+    
+    # Notification triggers
+    triggers:
+      trade_executed: true       # Notify on trade execution
+      profit_threshold: 100      # Notify when profit exceeds threshold (USDT)
+      loss_threshold: 50         # Notify when loss exceeds threshold (USDT)
+      system_errors: true        # Notify on system errors
+      daily_summary: true        # Send daily summary
+
+# ===== Notification Configuration =====
+notifications:
+  # Telegram settings
+  telegram:
+    token: ""                    # Telegram bot token
+    chat_id: ""                  # Telegram chat ID
+    parse_mode: "Markdown"       # Message format
+    
+  # Email settings (optional)
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: ""                 # Your email
+    password: ""                 # Your email password or app password
+    from_email: ""              # From email address
+    to_email: ""                # To email address
+    
+  # Webhook settings (optional)
+  webhook:
+    url: ""                      # Webhook URL
+    method: "POST"               # HTTP method
+    headers:                     # Custom headers
+      Content-Type: "application/json"
+
+# ===== Advanced Configuration =====
+advanced:
+  # Performance optimization
+  performance:
+    async_order_processing: true  # Enable async order processing
+    batch_operations: true        # Enable batch database operations
+    connection_pooling: true      # Enable database connection pooling
+    cache_enabled: true           # Enable result caching
+    
+  # Market data
+  market_data:
+    price_precision: 2           # Price decimal places
+    quantity_precision: 6        # Quantity decimal places
+    use_mark_price: false        # Use mark price instead of last price
+    
+  # Grid optimization
+  grid_optimization:
+    dynamic_spacing: false       # Enable dynamic grid spacing
+    volatility_adjustment: true  # Adjust grid based on volatility
+    trend_following: false       # Enable trend following adjustments
+    
+  # Order execution
+  execution:
+    order_type: "LIMIT"          # Order type (LIMIT/MARKET)
+    time_in_force: "GTC"         # Time in force (GTC/IOC/FOK)
+    reduce_only: false           # Reduce only orders
+    
+  # Emergency settings
+  emergency:
+    auto_stop_on_error: true     # Auto stop on critical errors
+    max_consecutive_failures: 5  # Max consecutive order failures
+    circuit_breaker_enabled: true # Enable circuit breaker
+    
+# ===== Development Configuration =====
+development:
+  # Debug settings
+  debug_mode: false              # Enable debug mode
+  mock_trading: false            # Enable mock trading (simulation)
+  verbose_logging: false         # Enable verbose logging
+  
+  # Testing
+  testing:
+    unit_tests: false            # Enable unit testing mode
+    integration_tests: false     # Enable integration testing
+    load_testing: false          # Enable load testing
+    
+  # Development tools
+  tools:
+    profiling_enabled: false     # Enable performance profiling
+    metrics_collection: true     # Collect performance metrics
+    health_checks: true          # Enable health check endpoints
+
+# ===== Configuration Validation =====
+# The system will validate this configuration on startup
+# Required fields: api.binance_api_key, api.binance_api_secret
+# Recommended: Start with use_testnet: true
+
+# ===== Quick Setup Guide =====
+# 1. Get Binance API credentials:
+#    - Log into Binance account
+#    - Go to API Management
+#    - Create new API key
+#    - Enable "Spot & Margin Trading" permission
+#    - Copy API key and secret to this file
+#
+# 2. Configure risk settings:
+#    - Adjust initial_balance based on your capital
+#    - Set appropriate risk_management limits
+#    - Start with conservative grid sizes
+#
+# 3. Test configuration:
+#    - Set use_testnet: true
+#    - Run: python main.py --check-config
+#    - Start system: python main.py
+#
+# 4. Monitor and adjust:
+#    - Access web interface at http://localhost:8080
+#    - Monitor performance and adjust parameters
+#    - Gradually increase position sizes as comfortable
+#
+# ===== Safety Reminders =====
+# - Never invest more than you can afford to lose
+# - Start with small amounts and testnet
+# - Regularly backup your configuration and data
+# - Monitor the system regularly
+# - Keep API keys secure and never share them

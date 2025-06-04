@@ -1,0 +1,115 @@
+# 天地双网格交易系统 - Dockerfile
+# 个人版 v2.0 - 轻量化单容器部署
+
+FROM python:3.11-slim
+
+# 设置标签
+LABEL maintainer="Grid Trading System"
+LABEL version="2.0"
+LABEL description="Personal Grid Trading Bot for Binance"
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置环境变量
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV TZ=Asia/Shanghai
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    sqlite3 \
+    tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制依赖文件
+COPY requirements.txt .
+
+# 安装Python依赖
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# 复制应用代码
+COPY *.py ./
+COPY config.yaml ./
+
+# 创建必要目录
+RUN mkdir -p logs data backups
+
+# 设置权限 (为安全起见，创建非root用户)
+RUN groupadd -r trading && useradd -r -g trading trading \
+    && chown -R trading:trading /app
+
+# 切换到非root用户
+USER trading
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/api/status || exit 1
+
+# 暴露端口
+EXPOSE 8080
+
+# 启动命令
+CMD ["python", "main.py"]
+
+# ===============================================
+# 构建和运行说明
+# ===============================================
+#
+# 1. 构建镜像:
+#    docker build -t grid-trading:latest .
+#
+# 2. 运行容器:
+#    docker run -d \
+#      --name grid-trading-bot \
+#      -p 8080:8080 \
+#      -v $(pwd)/config.yaml:/app/config.yaml \
+#      -v grid_data:/app/data \
+#      -v grid_logs:/app/logs \
+#      -v grid_backups:/app/backups \
+#      grid-trading:latest
+#
+# 3. 查看日志:
+#    docker logs -f grid-trading-bot
+#
+# 4. 进入容器:
+#    docker exec -it grid-trading-bot bash
+#
+# 5. 停止容器:
+#    docker stop grid-trading-bot
+#
+# ===============================================
+# Docker Compose 使用
+# ===============================================
+#
+# 创建 docker-compose.yml 文件:
+#
+# version: '3.8'
+# services:
+#   grid-trading:
+#     build: .
+#     container_name: grid-trading-bot
+#     restart: unless-stopped
+#     ports:
+#       - "8080:8080"
+#     volumes:
+#       - ./config.yaml:/app/config.yaml:ro
+#       - grid_data:/app/data
+#       - grid_logs:/app/logs
+#       - grid_backups:/app/backups
+#     environment:
+#       - TZ=Asia/Shanghai
+#
+# volumes:
+#   grid_data:
+#   grid_logs:
+#   grid_backups:
+#
+# 然后运行:
+# docker-compose up -d
+#
+# ===============================================
